@@ -36,8 +36,8 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     this.handle({
       onFulfilled: onFulfilled || null,
       onRejected: onRejected || null,
-      resolve: resolve,
-      reject: reject
+      resolve,
+      reject
     });
   });
 };
@@ -59,10 +59,22 @@ Promise.prototype.catch = function (onRejected) {
   return this.then(null, onRejected);
 };
 
-MyPromise.prototype.finally = function (callback) {
+Promise.resolve = function (value) {
+  return new Promise((resolve, reject) => {
+    resolve(value);
+  });
+};
+
+
+Promise.reject = function (value) {
+  return new Promise((resolve, reject) => {
+    reject(value);
+  });
+};
+Promise.prototype.finally = function (callback) {
   return this.then(
-    value => MyPromise.resolve(callback()).then(() => value),
-    reason => MyPromise.resolve(callback()).then(() => {throw reason})
+    value => Promise.resolve(callback()).then(() => value),
+    reason => Promise.reject(callback()).then(() => {throw reason})
   );
 };
 
@@ -76,9 +88,9 @@ Promise.prototype.handleCallbacks = function () {
 
 new Promise((resolve, reject) => {
   reject('1111')
+  // resolve(1)
 }).then((val) => {
   console.log('val: ', val);
-
 }).catch((err) => {
   console.log('err: ', err);
 }).finally(() => {
